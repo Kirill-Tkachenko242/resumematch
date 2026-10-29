@@ -21,3 +21,7 @@ app.listen(PORT, () => {
 });
 
 app.use('/api/resumes', resumeRoutes);
+
+const jobRoutes = require('./routes/jobs');
+
+app.use('/api/jobs', jobRoutes);
