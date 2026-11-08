@@ -25,3 +25,7 @@ app.use('/api/resumes', resumeRoutes);
 const jobRoutes = require('./routes/jobs');
 
 app.use('/api/jobs', jobRoutes);
+
+const scoreRoutes = require('./routes/scores');
+
+app.use('/api/scores', scoreRoutes);
