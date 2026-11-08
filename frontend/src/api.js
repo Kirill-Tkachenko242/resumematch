@@ -42,4 +42,11 @@ export const api = {
   },
   extract: (versionId) =>
     request(`/api/resumes/versions/${versionId}/extract`, { method: 'POST' }),
+    listJobs: () => request('/api/jobs'),
+  myJobs: () => request('/api/jobs/mine'),
+  categories: () => request('/api/jobs/categories'),
+  postJob: (body) => request('/api/jobs', json(body)),
+  score: (body) => request('/api/scores', json(body)),
+  history: (resumeId, jobId) =>
+    request(`/api/scores/history?resume_id=${resumeId}&job_id=${jobId}`),
 };

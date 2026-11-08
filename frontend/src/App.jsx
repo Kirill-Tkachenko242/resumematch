@@ -1,10 +1,19 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Auth from './pages/Auth';
 import Resumes from './pages/Resumes';
+import Jobs from './pages/Jobs';
+import Match from './pages/Match';
+import Nav from './components/Nav';
 import { getToken } from './api';
 
 function Protected({ children }) {
-  return getToken() ? children : <Navigate to="/login" replace />;
+  if (!getToken()) return <Navigate to="/login" replace />;
+  return (
+    <>
+      <Nav />
+      {children}
+    </>
+  );
 }
 
 export default function App() {
@@ -12,6 +21,8 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Auth />} />
       <Route path="/resumes" element={<Protected><Resumes /></Protected>} />
+      <Route path="/jobs" element={<Protected><Jobs /></Protected>} />
+      <Route path="/match" element={<Protected><Match /></Protected>} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
