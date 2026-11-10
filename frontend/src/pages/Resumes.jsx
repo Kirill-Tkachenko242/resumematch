@@ -88,10 +88,6 @@ export default function Resumes() {
     <div style={{ maxWidth: 900, margin: '40px auto', padding: '0 16px' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>My Resumes</h1>
-        <div>
-          {user?.name} ({user?.role}){' '}
-          <button onClick={() => { logout(); navigate('/login'); }}>Log out</button>
-        </div>
       </header>
 
       {user?.role !== 'candidate' && (
