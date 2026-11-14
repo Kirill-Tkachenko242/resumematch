@@ -83,6 +83,7 @@ export default function Resumes() {
 
   // one entry per resume for the dropdown
   const resumes = [...new Map(rows.map((r) => [r.resume_id, r.title])).entries()];
+  const selectedRow = rows.find((r) => r.version_id === selected);
 
   return (
     <div style={{ maxWidth: 900, margin: '40px auto', padding: '0 16px' }}>
@@ -129,7 +130,7 @@ export default function Resumes() {
 
       {result && (
         <section style={{ border: '1px solid #ccc', padding: 16, marginTop: 24 }}>
-          <h3>Analysis of version #{selected}</h3>
+          <h3>Analysis: {selectedRow ? `${selectedRow.title} - v${selectedRow.version_number}` : ''}</h3>
           <p><em>{result.summary}</em></p>
           <p><strong>Experience:</strong> {result.years_of_experience} years</p>
           <p><strong>Job titles:</strong> {result.job_titles?.join(', ') || '-'}</p>

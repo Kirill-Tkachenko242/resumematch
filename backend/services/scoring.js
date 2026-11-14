@@ -53,28 +53,52 @@ function scoreSkills(resume, job, weights = {}) {
   return { score: round1((got / total) * 100), matched, missing };
 }
 
+
 function scoreExperience(resume, job, category = {}) {
   const minYears = Number(job.min_years_experience) || 0;
   const years = Number(resume.years_of_experience) || 0;
-  const yearsScore = minYears > 0 ? Math.min(1, years / minYears) * 100 : 100;
 
   const accepted = [
     ...(category.accepted_degrees || []),
     ...(job.accepted_fields_of_study || []),
   ].map((x) => String(x).toLowerCase().trim()).filter(Boolean);
 
-  let educationScore = 100;
+  // Only requirements actually specified by the job are scored
+  const parts = []; // [weight, score]
+
+  if (minYears > 0) {
+    parts.push([0.7, Math.min(1, years / minYears) * 100]);
+  }
+
   let educationMatch = null;
+
   if (accepted.length) {
     const edu = (resume.education || []).map((e) =>
       `${e.degree || ''} ${e.field || ''}`.toLowerCase()
     );
-    educationMatch = edu.some((t) => accepted.some((a) => t.includes(a)));
-    educationScore = educationMatch ? 100 : 0;
+
+    educationMatch = edu.some((t) =>
+      accepted.some((a) => t.includes(a))
+    );
+
+    parts.push([0.3, educationMatch ? 100 : 0]);
   }
 
+  // Nothing to compare: no score
+  if (!parts.length) {
+    return {
+      score: null,
+      years_have: years,
+      years_needed: 0,
+      education_match: null,
+    };
+  }
+
+  const weightSum = parts.reduce((a, [w]) => a + w, 0);
+  const score = parts.reduce((a, [w, s]) => a + w * s, 0) / weightSum;
+
   return {
-    score: round1(0.7 * yearsScore + 0.3 * educationScore),
+    score: round1(score),
     years_have: years,
     years_needed: minYears,
     education_match: educationMatch,
@@ -95,6 +119,7 @@ function scoreKeywords(resume, job) {
   return { score: round1((found.length / keywords.length) * 100), found, missing };
 }
 
+
 function scoreMatch(resume, job, category = {}) {
   const parts = {
     skills: scoreSkills(resume, job, category.skill_weights),
@@ -102,10 +127,25 @@ function scoreMatch(resume, job, category = {}) {
     keywords: scoreKeywords(resume, job),
   };
 
+  // Keywords alone are not enough to produce a score
+  if (parts.skills.score === null && parts.experience.score === null) {
+    return {
+      overall: null,
+      categories: {
+        skills: null,
+        experience: null,
+        keywords: parts.keywords.score,
+      },
+      details: parts,
+    };
+  }
+
   let sum = 0;
   let wsum = 0;
+
   for (const [name, p] of Object.entries(parts)) {
     if (p.score === null) continue;
+
     sum += p.score * WEIGHTS[name];
     wsum += WEIGHTS[name];
   }
@@ -120,5 +160,6 @@ function scoreMatch(resume, job, category = {}) {
     details: parts,
   };
 }
+
 
 module.exports = { scoreMatch, scoreSkills, scoreExperience, scoreKeywords };

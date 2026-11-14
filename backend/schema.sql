@@ -56,6 +56,14 @@ CREATE TABLE applications (
   resume_version_id INTEGER NOT NULL REFERENCES resume_versions(id),
   status            VARCHAR(20) DEFAULT 'submitted',
   created_at        TIMESTAMP DEFAULT NOW()
+  ALTER TABLE applications
+  ADD COLUMN overall_score   NUMERIC(5,2),
+  ADD COLUMN category_scores JSONB,
+  ADD COLUMN explanation     JSONB,
+  ADD COLUMN updated_at      TIMESTAMP DEFAULT NOW();
+
+ALTER TABLE applications
+  ADD CONSTRAINT applications_user_job_unique UNIQUE (user_id, job_id);
 );
 
 -- 7. Match score history: every analysis result is stored
@@ -70,3 +78,4 @@ CREATE TABLE match_scores (
   explanation       JSONB,                        -- text explanation per category
   created_at        TIMESTAMP DEFAULT NOW()
 );
+

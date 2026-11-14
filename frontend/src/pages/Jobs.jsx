@@ -86,6 +86,7 @@ export default function Jobs() {
                 Experience: {req.min_years_experience ?? 0}+ years
               </p>
               {!isCompany && <Link to={`/match?job=${j.id}`}>Check my match</Link>}
+              {isCompany && <Link to={`/jobs/${j.id}/applicants`}>View applicants</Link>}
             </li>
           );
         })}

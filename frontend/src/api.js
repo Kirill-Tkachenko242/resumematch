@@ -49,4 +49,9 @@ export const api = {
   score: (body) => request('/api/scores', json(body)),
   history: (resumeId, jobId) =>
     request(`/api/scores/history?resume_id=${resumeId}&job_id=${jobId}`),
+  apply: (resume_version_id, job_id) =>
+    request('/api/applications', json({ resume_version_id, job_id })),
+  myApplications: () => request('/api/applications/mine'),
+  applicants: (jobId) => request(`/api/applications/job/${jobId}`),
 };
+

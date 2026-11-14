@@ -32,6 +32,7 @@ export default function Match() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [applied, setApplied] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +65,15 @@ export default function Match() {
   }
 
   const skills = result?.details?.skills;
+
+  async function handleApply() {
+    try {
+        await api.apply(versionId, jobId);   // your selected ids
+        setApplied('Application sent. Re-applying replaces your previous one.');
+    } catch (e) {
+        setApplied(e.message);
+    }
+  }
 
   return (
     <div style={{ maxWidth: 900, margin: '32px auto', padding: '0 16px' }}>
@@ -105,6 +115,12 @@ export default function Match() {
             </>
           )}
         </section>
+      )}
+      {result && jobId && (
+        <>
+            <button onClick={handleApply}>Apply with this version</button>
+            {applied && <p>{applied}</p>}
+        </>
       )}
 
       {history.length > 0 && (

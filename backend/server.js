@@ -29,3 +29,5 @@ app.use('/api/jobs', jobRoutes);
 const scoreRoutes = require('./routes/scores');
 
 app.use('/api/scores', scoreRoutes);
+
+app.use('/api/applications', require('./routes/applications'));

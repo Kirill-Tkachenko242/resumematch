@@ -53,9 +53,24 @@ test('no required skills gives null score', () => {
   assert.strictEqual(scoreSkills({ skills: ['Python'], text: '' }, {}).score, null);
 });
 
+
 test('experience below requirement is scaled', () => {
-  const r = scoreExperience({ years_of_experience: 1, education: [] }, job, {});
-  assert.strictEqual(r.score, 65); // 0.7 * 50 + 0.3 * 100
+  const r = scoreExperience(
+    { years_of_experience: 1, education: [] },
+    job,
+    {}
+  );
+
+  assert.strictEqual(r.score, 50);
+});
+test('experience: no requirements means no score', () => {
+  assert.strictEqual(scoreExperience({ years_of_experience: 5, education: [] }, {}, {}).score, null);
+});
+
+test('overall: a job with no checkable requirements is not scored', () => {
+  const r = scoreMatch({ skills: [], years_of_experience: 0, education: [], text: "I'm funny and chill" },
+                       { title: 'Be funny and chill' });
+  assert.strictEqual(r.overall, null);
 });
 
 test('education mismatch costs 30 points; admin category can fix it', () => {
