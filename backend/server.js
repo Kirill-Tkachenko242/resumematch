@@ -31,3 +31,5 @@ const scoreRoutes = require('./routes/scores');
 app.use('/api/scores', scoreRoutes);
 
 app.use('/api/applications', require('./routes/applications'));
+
+app.use('/api/admin', require('./routes/admin'));

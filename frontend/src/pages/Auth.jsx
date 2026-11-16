@@ -17,7 +17,13 @@ export default function Auth() {
       if (mode === 'register') await api.register(form);
       const data = await api.login({ email: form.email, password: form.password });
       setSession(data.token, data.user);
-      navigate(data.user.role === 'company' ? '/jobs' : '/resumes');
+      if (data.user.role === 'admin') {
+        navigate('/admin');
+      } else if (data.user.role === 'company') {
+        navigate('/jobs');
+      } else {
+        navigate('/resumes');
+      }
     } catch (err) {
       setError(err.message);
     }

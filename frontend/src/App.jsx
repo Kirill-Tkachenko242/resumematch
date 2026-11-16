@@ -6,6 +6,7 @@ import Match from './pages/Match';
 import Nav from './components/Nav';
 import { getToken } from './api';
 import Applicants from './pages/Applicants';
+import Admin from './pages/Admin';
 
 function Protected({ children }) {
   if (!getToken()) return <Navigate to="/login" replace />;
@@ -26,6 +27,7 @@ export default function App() {
       <Route path="/match" element={<Protected><Match /></Protected>} />
       <Route path="*" element={<Navigate to="/login" replace />} />
       <Route path="/jobs/:id/applicants" element={<Protected><Applicants /></Protected>} />
+      <Route path="/admin" element={<Protected><Admin /></Protected>} />
     </Routes>
   );
 }

@@ -53,5 +53,8 @@ export const api = {
     request('/api/applications', json({ resume_version_id, job_id })),
   myApplications: () => request('/api/applications/mine'),
   applicants: (jobId) => request(`/api/applications/job/${jobId}`),
+  adminCategories: () => request('/api/admin/categories'),
+  adminSaveCategory: (id, data) =>
+    request(`/api/admin/categories/${id}`, {...json(data), method: 'PUT', }),
 };
 
