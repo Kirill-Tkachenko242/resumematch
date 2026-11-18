@@ -3,6 +3,7 @@ const pool = require('../db');
 const auth = require('../middleware/auth');
 const { extractResumeData, extractJobData } = require('../services/claude');
 const { scoreMatch } = require('../services/scoring');
+const { explainScore } = require('../services/explain');
 
 const router = express.Router();
 
@@ -66,7 +67,12 @@ router.post('/', auth, async (req, res) => {
        result.overall, JSON.stringify(result.categories), JSON.stringify(result.details)]
     );
 
-    res.status(201).json({ id: saved.rows[0].id, ...result });
+    const ai_explanation = await explainScore(
+      job.title || 'the job', result.categories, result.details
+    );
+
+    res.status(201).json({ id: saved.rows[0].id, ...result, ai_explanation });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Scoring failed' });
