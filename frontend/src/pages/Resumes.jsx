@@ -81,6 +81,46 @@ export default function Resumes() {
     }
   }
 
+  async function removeVersion(r) {
+    if (!window.confirm(`Delete ${r.title} v${r.version_number}?`)) return;
+
+    setError('');
+
+    try {
+      await api.deleteVersion(r.version_id);
+
+      if (selected === r.version_id) {
+        setSelected(null);
+        setResult(null);
+      }
+
+      await load();
+    } catch (err) {
+      handleError(err);
+    }
+  }
+
+  async function removeResume(r) {
+    if (!window.confirm(`Delete "${r.title}" with all its versions?`)) return;
+
+    setError('');
+
+    try {
+      await api.deleteResume(r.resume_id);
+
+      setSelected(null);
+      setResult(null);
+
+      if (resumeId === String(r.resume_id)) {
+        setResumeId('');
+      }
+
+      await load();
+    } catch (err) {
+      handleError(err);
+    }
+  }
+
   // one entry per resume for the dropdown
   const resumes = [...new Map(rows.map((r) => [r.resume_id, r.title])).entries()];
   const selectedRow = rows.find((r) => r.version_id === selected);
@@ -121,9 +161,22 @@ export default function Resumes() {
               <br />
               <small>{new Date(r.created_at).toLocaleString()}</small>
             </span>
-            <button onClick={() => analyze(r.version_id)} disabled={analyzingId === r.version_id}>
-              {analyzingId === r.version_id ? 'Analyzing...' : 'Analyze'}
-            </button>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => analyze(r.version_id)}
+                disabled={analyzingId === r.version_id}
+              >
+                {analyzingId === r.version_id ? 'Analyzing...' : 'Analyze'}
+              </button>
+
+              <button onClick={() => removeVersion(r)}>
+                Delete version
+              </button>
+
+              <button onClick={() => removeResume(r)}>
+                Delete resume
+              </button>
+            </div>
           </li>
         ))}
       </ul>

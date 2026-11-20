@@ -10,6 +10,7 @@ export default function Jobs() {
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState('');
   const [refresh, setRefresh] = useState(0);
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,13 +31,29 @@ export default function Jobs() {
 
   const update = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  
   async function post(e) {
     e.preventDefault();
     setError('');
     setPosting(true);
+
     try {
-      await api.postJob({ ...form, category_id: form.category_id || undefined });
+      const data = {
+        ...form,
+        category_id: form.category_id || null,
+      };
+
+      if (editingId) {
+        await api.updateJob(editingId, data);
+      } else {
+        await api.postJob({
+          ...form,
+          category_id: form.category_id || undefined,
+        });
+      }
+
       setForm({ title: '', category_id: '', description: '' });
+      setEditingId(null);
       setRefresh((n) => n + 1);
     } catch (err) {
       setError(err.message);
@@ -45,13 +62,54 @@ export default function Jobs() {
     }
   }
 
+  function startEdit(j) {
+    setEditingId(j.id);
+    setForm({
+      title: j.title,
+      category_id: j.category_id ?? '',
+      description: j.description ?? '',
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm({ title: '', category_id: '', description: '' });
+  }
+
+  async function toggleStatus(j) {
+    try {
+      await api.setJobStatus(
+        j.id,
+        j.status === 'closed' ? 'active' : 'closed'
+      );
+      setRefresh((n) => n + 1);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function remove(j) {
+    if (!window.confirm(`Delete "${j.title}" and all its applications?`)) {
+      return;
+    }
+
+    try {
+      await api.deleteJob(j.id);
+      setRefresh((n) => n + 1);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+
   return (
     <div style={{ maxWidth: 900, margin: '32px auto', padding: '0 16px' }}>
       <h1>{isCompany ? 'My job postings' : 'Open jobs'}</h1>
 
       {isCompany && (
         <form onSubmit={post} style={{ display: 'grid', gap: 8, marginBottom: 32 }}>
-          <h3>Post a job</h3>
+          <h3>{editingId ? 'Edit job' : 'Post a job'}</h3>
           <input name="title" placeholder="Job title" value={form.title} onChange={update} required />
           <select name="category_id" value={form.category_id} onChange={update}>
             <option value="">No category</option>
@@ -60,8 +118,18 @@ export default function Jobs() {
           <textarea name="description" rows={8} placeholder="Job description (skills, experience, education...)"
             value={form.description} onChange={update} required />
           <button type="submit" disabled={posting}>
-            {posting ? 'Analysing description...' : 'Post job'}
+            {posting
+              ? 'Saving...'
+              : editingId
+                ? 'Save changes'
+                : 'Post job'}
           </button>
+
+          {editingId && (
+            <button type="button" onClick={cancelEdit}>
+              Cancel
+            </button>
+          )}
         </form>
       )}
 
@@ -87,6 +155,33 @@ export default function Jobs() {
               </p>
               {!isCompany && <Link to={`/match?job=${j.id}`}>Check my match</Link>}
               {isCompany && <Link to={`/jobs/${j.id}/applicants`}>View applicants</Link>}
+
+              {isCompany && (
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                  marginTop: 8,
+                  alignItems: 'center'
+                }}>
+                  <span>
+                    Status: <b>{j.status}</b>
+                  </span>
+
+                  <button onClick={() => startEdit(j)}>
+                    Edit
+                  </button>
+
+                  <button onClick={() => toggleStatus(j)}>
+                    {j.status === 'closed' ? 'Reopen' : 'Close'}
+                  </button>
+
+                  <button onClick={() => remove(j)}>
+                    Delete
+                  </button>
+                </div>
+              )}
+
             </li>
           );
         })}

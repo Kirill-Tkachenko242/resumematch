@@ -140,6 +140,13 @@ function scoreMatch(resume, job, category = {}) {
     };
   }
 
+  // Years of experience only count in proportion to how well the skills match,
+  // so experience in an unrelated field does not raise the score
+  if (parts.skills.score !== null && parts.experience.score !== null) {
+    parts.experience.raw_score = parts.experience.score;
+    parts.experience.score = round1((parts.experience.score * parts.skills.score) / 100);
+  }
+
   let sum = 0;
   let wsum = 0;
 

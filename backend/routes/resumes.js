@@ -4,6 +4,7 @@ const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 const pool = require('../db');
 const auth = require('../middleware/auth');
+const { extractResumeData } = require('../services/claude');
 
 const router = express.Router();
 
@@ -103,9 +104,57 @@ router.use((err, req, res, next) => {
   next(err);
 });
 
-module.exports = router;
+// DELETE /api/resumes/versions/:versionId  (candidate, own version only)
+router.delete('/versions/:versionId', auth, async (req, res) => {
+  if (req.user.role !== 'candidate') return res.status(403).json({ error: 'Candidates only' });
+  try {
+    const v = await pool.query(
+      `SELECT v.id, v.resume_id FROM resume_versions v
+       JOIN resumes r ON r.id = v.resume_id
+       WHERE v.id = $1 AND r.user_id = $2`,
+      [req.params.versionId, req.user.id]
+    );
+    if (!v.rows[0]) return res.status(404).json({ error: 'Version not found' });
 
-const { extractResumeData } = require('../services/claude');
+    const used = await pool.query('SELECT 1 FROM applications WHERE resume_version_id = $1 LIMIT 1', [v.rows[0].id]);
+    if (used.rows[0]) {
+      return res.status(409).json({ error: 'This version is used in an application. Apply with another version first.' });
+    }
+    await pool.query('DELETE FROM resume_versions WHERE id = $1', [v.rows[0].id]);
+
+    // no versions left: remove the empty resume too
+    const left = await pool.query('SELECT 1 FROM resume_versions WHERE resume_id = $1 LIMIT 1', [v.rows[0].resume_id]);
+    if (!left.rows[0]) await pool.query('DELETE FROM resumes WHERE id = $1', [v.rows[0].resume_id]);
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// DELETE /api/resumes/:resumeId  (all versions)
+router.delete('/:resumeId', auth, async (req, res) => {
+  if (req.user.role !== 'candidate') return res.status(403).json({ error: 'Candidates only' });
+  try {
+    const own = await pool.query('SELECT id FROM resumes WHERE id = $1 AND user_id = $2', [req.params.resumeId, req.user.id]);
+    if (!own.rows[0]) return res.status(404).json({ error: 'Resume not found' });
+
+    const used = await pool.query(
+      `SELECT 1 FROM applications a JOIN resume_versions v ON v.id = a.resume_version_id
+       WHERE v.resume_id = $1 LIMIT 1`, [own.rows[0].id]
+    );
+    if (used.rows[0]) {
+      return res.status(409).json({ error: 'A version of this resume is used in an application.' });
+    }
+    await pool.query('DELETE FROM resumes WHERE id = $1', [own.rows[0].id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // POST /api/resumes/versions/:versionId/extract
 router.post('/versions/:versionId/extract', auth, async (req, res) => {
   try {
@@ -129,3 +178,5 @@ router.post('/versions/:versionId/extract', auth, async (req, res) => {
     res.status(500).json({ error: 'Extraction failed' });
   }
 });
+
+module.exports = router;

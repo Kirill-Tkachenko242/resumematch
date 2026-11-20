@@ -103,3 +103,9 @@ test('overall: categories without data are skipped and weights renormalised', ()
   assert.strictEqual(r.categories.keywords, null);
   assert.strictEqual(r.overall, 100);
 });
+
+test('overall: experience in an unrelated field does not count', () => {
+  const resume = { skills: [], years_of_experience: 5, education: [], text: '' };
+  const r = scoreMatch(resume, { required_skills: ['Python'], min_years_experience: 1 });
+  assert.strictEqual(r.overall, 0);
+});

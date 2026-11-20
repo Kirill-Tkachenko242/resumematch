@@ -24,8 +24,8 @@ async function request(path, options = {}) {
   return data;
 }
 
-const json = (body) => ({
-  method: 'POST',
+const json = (body, method = 'POST') => ({
+  method,
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
 });
@@ -46,6 +46,20 @@ export const api = {
   myJobs: () => request('/api/jobs/mine'),
   categories: () => request('/api/jobs/categories'),
   postJob: (body) => request('/api/jobs', json(body)),
+  updateJob: (id, data) =>
+    request(`/api/jobs/${id}`, json(data, 'PUT')),
+  // Change job status
+  setJobStatus: (id, status) =>
+    request(`/api/jobs/${id}/status`, json({ status }, 'PATCH')),
+  // Delete a job
+  deleteJob: (id) =>
+    request(`/api/jobs/${id}`, { method: 'DELETE' }),
+  // Delete one resume version
+  deleteVersion: (id) =>
+    request(`/api/resumes/versions/${id}`, { method: 'DELETE' }),
+  // Delete an entire resume
+  deleteResume: (id) =>
+    request(`/api/resumes/${id}`, { method: 'DELETE' }),
   score: (body) => request('/api/scores', json(body)),
   history: (resumeId, jobId) =>
     request(`/api/scores/history?resume_id=${resumeId}&job_id=${jobId}`),

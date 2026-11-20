@@ -1,0 +1,22 @@
+{
+  "resumes": {
+    "R1": { "label": "Senior backend developer", "skills": ["Python", "SQL", "Git", "REST APIs", "Docker"], "years_of_experience": 4, "education": [{ "degree": "BSc", "field": "Computer Science" }], "text": "Backend developer with four years of Python, SQL, REST APIs, Git and Docker." },
+    "R2": { "label": "Junior backend developer", "skills": ["Python", "Git"], "years_of_experience": 1, "education": [{ "degree": "Higher Diploma", "field": "Computing" }], "text": "Junior developer, Python and Git, one year of experience." },
+    "R3": { "label": "Data analyst", "skills": ["Python", "SQL", "Excel", "Tableau", "Statistics"], "years_of_experience": 3, "education": [{ "degree": "BSc", "field": "Mathematics" }], "text": "Data analyst building dashboards in Tableau, SQL queries and Python analysis." },
+    "R4": { "label": "UI designer", "skills": ["Figma", "Photoshop", "UX Research", "Prototyping"], "years_of_experience": 2, "education": [{ "degree": "BA", "field": "Graphic Design" }], "text": "Designer with Figma, prototyping and user research experience." },
+    "R5": { "label": "Frontend developer", "skills": ["JavaScript", "React", "HTML", "CSS", "Git"], "years_of_experience": 2, "education": [{ "degree": "BSc", "field": "Software Development" }], "text": "Frontend developer building React applications with JavaScript, HTML and CSS." }
+  },
+  "jobs": {
+    "J1": { "title": "Software Engineer", "required_skills": ["Python", "SQL", "Git", "REST APIs"], "nice_to_have_skills": ["Docker"], "min_years_experience": 2, "accepted_fields_of_study": [] },
+    "J2": { "title": "Data Analyst", "required_skills": ["SQL", "Python", "Excel", "Tableau"], "nice_to_have_skills": ["Statistics"], "min_years_experience": 2, "accepted_fields_of_study": [] },
+    "J3": { "title": "Product Designer", "required_skills": ["Figma", "Prototyping", "UX Research"], "nice_to_have_skills": ["Photoshop"], "min_years_experience": 2, "accepted_fields_of_study": [] },
+    "J4": { "title": "Frontend Developer", "required_skills": ["JavaScript", "React", "HTML", "CSS"], "nice_to_have_skills": ["TypeScript"], "min_years_experience": 1, "accepted_fields_of_study": [] }
+  },
+  "manual_scores": {
+    "R1-J1": 100, "R1-J2": 35, "R1-J3": 0, "R1-J4": 15,
+    "R2-J1": 45, "R2-J2": 15, "R2-J3": 10, "R2-J4": 10,
+    "R3-J1": 35, "R3-J2": 100, "R3-J3": 0, "R3-J4": 0,
+    "R4-J1": 0, "R4-J2": 0, "R4-J3": 100, "R4-J4": 0,
+    "R5-J1": 10, "R5-J2": 0, "R5-J3": 20, "R5-J4": 100
+  }
+}

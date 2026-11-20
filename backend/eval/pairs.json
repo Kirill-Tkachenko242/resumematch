@@ -1,0 +1,38 @@
+[
+  {
+    "id": "P01",
+    "manual_score": 85,
+    "resume": {
+      "skills": ["Python", "SQL", "Git", "REST APIs", "Docker"],
+      "years_of_experience": 3,
+      "education": [{ "degree": "BSc", "field": "Computer Science" }],
+      "text": "Backend developer with Python, SQL, Git and Docker."
+    },
+    "job": {
+      "title": "Software Engineer",
+      "required_skills": ["Python", "SQL", "Git", "REST APIs"],
+      "nice_to_have_skills": ["Docker"],
+      "min_years_experience": 2,
+      "accepted_fields_of_study": []
+    },
+    "category": {}
+  },
+  {
+    "id": "P02",
+    "manual_score": 25,
+    "resume": {
+      "skills": ["Figma", "Photoshop"],
+      "years_of_experience": 1,
+      "education": [{ "degree": "BA", "field": "Graphic Design" }],
+      "text": "Junior designer."
+    },
+    "job": {
+      "title": "Software Engineer",
+      "required_skills": ["Python", "SQL", "Git", "REST APIs"],
+      "nice_to_have_skills": ["Docker"],
+      "min_years_experience": 2,
+      "accepted_fields_of_study": []
+    },
+    "category": {}
+  }
+]

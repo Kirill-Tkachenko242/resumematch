@@ -84,3 +84,12 @@ test('upload: a .txt renamed to .pdf is rejected', { skip }, async () => {
   const r = await call('/api/resumes', { method: 'POST', token: candToken, form });
   assert.strictEqual(r.status, 400);
 });
+
+test('candidate cannot edit or delete a job', { skip }, async () => {
+  assert.strictEqual((await call('/api/jobs/1', { method: 'PUT', token: candToken, body: { title: 'x', description: 'y' } })).status, 403);
+  assert.strictEqual((await call('/api/jobs/1', { method: 'DELETE', token: candToken })).status, 403);
+});
+
+test('deleting a version that is not yours gives 404', { skip }, async () => {
+  assert.strictEqual((await call('/api/resumes/versions/999999', { method: 'DELETE', token: candToken })).status, 404);
+});

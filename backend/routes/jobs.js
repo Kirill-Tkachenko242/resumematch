@@ -92,4 +92,73 @@ router.get('/mine', auth, async (req, res) => {
   }
 });
 
+// PUT /api/jobs/:id  { title, category_id, description }  (company, own job only)
+router.put('/:id', auth, async (req, res) => {
+  if (req.user.role !== 'company') return res.status(403).json({ error: 'Only companies can edit jobs' });
+  const { title, category_id, description } = req.body || {};
+  if (!title || !description) return res.status(400).json({ error: 'title and description are required' });
+  if (title.length > 150) return res.status(400).json({ error: 'Title too long (max 150 characters)' });
+  if (description.length > 20000) return res.status(400).json({ error: 'Description too long (max 20000 characters)' });
+  try {
+    const cur = await pool.query(
+      'SELECT description, structured_requirements FROM job_postings WHERE id = $1 AND company_id = $2',
+      [req.params.id, req.user.id]
+    );
+    if (!cur.rows[0]) return res.status(404).json({ error: 'Job not found' });
+
+    // re-extract requirements only if the text changed (saves an API call)
+    let requirements = cur.rows[0].structured_requirements;
+    if (description !== cur.rows[0].description || !requirements) {
+      requirements = await extractJobData(description);
+    }
+    const r = await pool.query(
+      `UPDATE job_postings
+       SET title = $1, category_id = $2, description = $3, structured_requirements = $4
+       WHERE id = $5 AND company_id = $6
+       RETURNING id, title, category_id, status`,
+      [title.trim(), category_id || null, description, JSON.stringify(requirements), req.params.id, req.user.id]
+    );
+    res.json(r.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Could not update job' });
+  }
+});
+
+// PATCH /api/jobs/:id/status  { status: 'active' | 'closed' }
+router.patch('/:id/status', auth, async (req, res) => {
+  if (req.user.role !== 'company') return res.status(403).json({ error: 'Only companies can change job status' });
+  const { status } = req.body || {};
+  if (!['active', 'closed'].includes(status)) {
+    return res.status(400).json({ error: "status must be 'active' or 'closed'" });
+  }
+  try {
+    const r = await pool.query(
+      'UPDATE job_postings SET status = $1 WHERE id = $2 AND company_id = $3 RETURNING id, status',
+      [status, req.params.id, req.user.id]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: 'Job not found' });
+    res.json(r.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// DELETE /api/jobs/:id  (also removes its applications and score history)
+router.delete('/:id', auth, async (req, res) => {
+  if (req.user.role !== 'company') return res.status(403).json({ error: 'Only companies can delete jobs' });
+  try {
+    const r = await pool.query(
+      'DELETE FROM job_postings WHERE id = $1 AND company_id = $2 RETURNING id',
+      [req.params.id, req.user.id]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: 'Job not found' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
