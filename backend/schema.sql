@@ -55,15 +55,12 @@ CREATE TABLE applications (
   job_id            INTEGER NOT NULL REFERENCES job_postings(id) ON DELETE CASCADE,
   resume_version_id INTEGER NOT NULL REFERENCES resume_versions(id),
   status            VARCHAR(20) DEFAULT 'submitted',
-  created_at        TIMESTAMP DEFAULT NOW()
-  ALTER TABLE applications
-  ADD COLUMN overall_score   NUMERIC(5,2),
-  ADD COLUMN category_scores JSONB,
-  ADD COLUMN explanation     JSONB,
-  ADD COLUMN updated_at      TIMESTAMP DEFAULT NOW();
-
-ALTER TABLE applications
-  ADD CONSTRAINT applications_user_job_unique UNIQUE (user_id, job_id);
+  overall_score     NUMERIC(5,2),
+  category_scores   JSONB,
+  explanation       JSONB,
+  created_at        TIMESTAMP DEFAULT NOW(),
+  updated_at        TIMESTAMP DEFAULT NOW(),
+  UNIQUE (user_id, job_id)
 );
 
 -- 7. Match score history: every analysis result is stored
@@ -79,3 +76,8 @@ CREATE TABLE match_scores (
   created_at        TIMESTAMP DEFAULT NOW()
 );
 
+INSERT INTO job_categories (name, accepted_degrees, skill_weights) VALUES
+ ('Software Engineer', '["Computer Science","Software Engineering","Computing"]', '{"Python":35,"SQL":25,"Git":15,"REST APIs":25}'),
+ ('Data Analyst', '["Statistics","Mathematics","Computer Science","Data Science"]', '{"SQL":35,"Python":30,"Excel":20,"Tableau":15}'),
+ ('Product Designer', '["Design","Graphic Design","HCI"]', '{"Figma":40,"Prototyping":30,"UX Research":30}')
+ON CONFLICT (name) DO NOTHING;
