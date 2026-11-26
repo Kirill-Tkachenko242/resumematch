@@ -30,27 +30,54 @@ export default function Auth() {
   }
 
   return (
-    <form onSubmit={submit} style={{ maxWidth: 360, margin: '80px auto', display: 'grid', gap: 12 }}>
-      <h1>ResumeMatch</h1>
-      <h2>{mode === 'login' ? 'Log in' : 'Create account'}</h2>
+    <div className="auth">
+      <div className="brand" style={{ marginBottom: 28 }}>
+        <span className="brand-mark">RM</span>
+        ResumeMatch
+      </div>
 
-      {mode === 'register' && (
-        <>
-          <input name="name" placeholder="Name" value={form.name} onChange={update} required />
-          <select name="role" value={form.role} onChange={update}>
-            <option value="candidate">Candidate</option>
-            <option value="company">Company</option>
-          </select>
-        </>
-      )}
-      <input name="email" type="email" placeholder="Email" value={form.email} onChange={update} required />
-      <input name="password" type="password" placeholder="Password" value={form.password} onChange={update} required />
+      <form className="panel" onSubmit={submit}>
+        <h1 style={{ fontSize: 28, marginBottom: 6 }}>{mode === 'login' ? 'Log in' : 'Create account'}</h1>
+        <p className="muted" style={{ margin: '0 0 24px' }}>
+          {mode === 'login' ? 'Welcome back.' : 'Choose whether you are a candidate or a company.'}
+        </p>
 
-      {error && <p style={{ color: 'crimson' }}>{error}</p>}
-      <button type="submit">{mode === 'login' ? 'Log in' : 'Register'}</button>
-      <button type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
-        {mode === 'login' ? 'Need an account? Register' : 'Have an account? Log in'}
-      </button>
-    </form>
+        {mode === 'register' && (
+          <>
+            <div className="field">
+              <label htmlFor="name">Name</label>
+              <input id="name" type="text" name="name" value={form.name} onChange={update} required />
+            </div>
+            <div className="field">
+              <label htmlFor="role">I am a</label>
+              <select id="role" name="role" value={form.role} onChange={update}>
+                <option value="candidate">Candidate</option>
+                <option value="company">Company</option>
+              </select>
+            </div>
+          </>
+        )}
+
+        <div className="field">
+          <label htmlFor="email">Email</label>
+          <input id="email" type="email" name="email" value={form.email} onChange={update} required />
+        </div>
+        <div className="field">
+          <label htmlFor="password">Password</label>
+          <input id="password" type="password" name="password" value={form.password} onChange={update} required />
+        </div>
+
+        {error && <p className="error">{error}</p>}
+
+        <button className="btn primary" type="submit" style={{ width: '100%' }}>
+          {mode === 'login' ? 'Log in' : 'Register'}
+        </button>
+        <p style={{ textAlign: 'center', margin: '16px 0 0' }}>
+          <button className="linkbtn" type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
+            {mode === 'login' ? 'Need an account? Register' : 'Have an account? Log in'}
+          </button>
+        </p>
+      </form>
+    </div>
   );
 }

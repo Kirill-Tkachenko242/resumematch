@@ -70,5 +70,5 @@ export const api = {
   adminCategories: () => request('/api/admin/categories'),
   adminSaveCategory: (id, data) =>
     request(`/api/admin/categories/${id}`, {...json(data), method: 'PUT', }),
+  adminStats: () => request('/api/admin/stats'),
 };
-

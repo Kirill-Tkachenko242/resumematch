@@ -25,9 +25,10 @@ export default function App() {
       <Route path="/resumes" element={<Protected><Resumes /></Protected>} />
       <Route path="/jobs" element={<Protected><Jobs /></Protected>} />
       <Route path="/match" element={<Protected><Match /></Protected>} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/applicants" element={<Protected><Applicants /></Protected>} />
       <Route path="/jobs/:id/applicants" element={<Protected><Applicants /></Protected>} />
       <Route path="/admin" element={<Protected><Admin /></Protected>} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }

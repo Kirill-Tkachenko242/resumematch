@@ -69,4 +69,20 @@ router.put('/categories/:id', async (req, res) => {
   }
 });
 
+// GET /api/admin/stats
+router.get('/stats', async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT (SELECT COUNT(*) FROM users) AS users,
+              (SELECT COUNT(DISTINCT resume_version_id) FROM match_scores) AS resumes_analyzed,
+              (SELECT COUNT(*) FROM job_postings) AS jobs`
+    );
+    const row = r.rows[0];
+    res.json({ users: Number(row.users), resumes_analyzed: Number(row.resumes_analyzed), jobs: Number(row.jobs) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;

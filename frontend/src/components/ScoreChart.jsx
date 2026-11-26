@@ -1,33 +1,38 @@
 // Line chart of overall score across resume versions (plain SVG, no dependencies)
+const fmt = (d) => (d ? new Date(d).toLocaleDateString('en-IE', { day: 'numeric', month: 'short' }) : '');
+
 export default function ScoreChart({ history }) {
   const points = (history || [])
-    .map((h) => ({ label: `v${h.version_number}`, score: Number(h.overall_score) }))
+    .map((h) => ({
+      label: `v${h.version_number}${h.created_at ? ` • ${fmt(h.created_at)}` : ''}`,
+      score: Number(h.overall_score),
+    }))
     .filter((p) => Number.isFinite(p.score));
 
-  if (points.length === 0) return <p>No history yet.</p>;
+  if (points.length === 0) return <p className="muted">No history yet.</p>;
 
-  const W = 480, H = 220, padL = 40, padR = 20, padT = 16, padB = 36;
+  const W = 1000, H = 260, padL = 48, padR = 32, padT = 24, padB = 40, inset = 70;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
-  const x = (i) => padL + (points.length === 1 ? innerW / 2 : (i * innerW) / (points.length - 1));
+  const x = (i) => padL + inset + (points.length === 1 ? (innerW - 2 * inset) / 2 : (i * (innerW - 2 * inset)) / (points.length - 1));
   const y = (s) => padT + innerH - (s / 100) * innerH;
   const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(p.score)}`).join(' ');
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: 520 }} role="img"
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%' }} role="img"
          aria-label="Match score by resume version">
       {[0, 25, 50, 75, 100].map((t) => (
         <g key={t}>
-          <line x1={padL} x2={W - padR} y1={y(t)} y2={y(t)} stroke="#e5e5e5" />
-          <text x={padL - 6} y={y(t) + 4} fontSize="11" textAnchor="end" fill="#666">{t}</text>
+          <line className="chart-grid" x1={padL} x2={W - padR} y1={y(t)} y2={y(t)} />
+          <text className="chart-text" x={padL - 8} y={y(t) + 4} textAnchor="end">{t}%</text>
         </g>
       ))}
-      {points.length > 1 && <path d={path} fill="none" stroke="#4f46e5" strokeWidth="2" />}
+      {points.length > 1 && <path className="chart-line" d={path} />}
       {points.map((p, i) => (
         <g key={i}>
-          <circle cx={x(i)} cy={y(p.score)} r="4" fill="#4f46e5" />
-          <text x={x(i)} y={y(p.score) - 9} fontSize="11" textAnchor="middle" fill="#333">{p.score}</text>
-          <text x={x(i)} y={H - 12} fontSize="11" textAnchor="middle" fill="#666">{p.label}</text>
+          <circle className="chart-dot" cx={x(i)} cy={y(p.score)} r="5" />
+          <text className="chart-value" x={x(i)} y={y(p.score) - 12} textAnchor="middle">{p.score}%</text>
+          <text className="chart-text" x={x(i)} y={H - 12} textAnchor="middle">{p.label}</text>
         </g>
       ))}
     </svg>
