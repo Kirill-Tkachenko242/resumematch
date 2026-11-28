@@ -32,7 +32,7 @@ export default function Auth() {
   return (
     <div className="auth">
       <div className="brand" style={{ marginBottom: 28 }}>
-        <span className="brand-mark">RM</span>
+        <img className="brand-logo" src="/Logo_white.png" alt="ResumeMatch" />
         ResumeMatch
       </div>
 
